@@ -1,3 +1,4 @@
+import pygame._view
 import pygame, sys, os
 from pygame.locals import *
 import getopt
@@ -45,18 +46,6 @@ def draw_cnc(tokens, surface):
             max_y = int(v[3])
             break
     print("CNC space from (%d,%d) to (%d, %d)" % (min_x, min_y, max_x, max_y))
-    x = None
-    y = None
-    if max_x > max_y:
-        x = 800
-        y = 800 - (max_y * (800/max_x))
-    else:
-        y = 800
-        x = 800 - (max_x * (800/max_y))
-    pygame.draw.line(surface, (255,255,255), (0,800-1), (x,800-1))
-    pygame.draw.line(surface, (255,255,255), (x,800-1), (x,y))
-    pygame.draw.line(surface, (255,255,255), (x,y), (0,y))
-    pygame.draw.line(surface, (255,255,255), (0,y), (0,800-1))
     #search for PD|PU tokens
     last_x = 0
     last_y = 0
