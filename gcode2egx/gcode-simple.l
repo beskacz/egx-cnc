@@ -1,0 +1,38 @@
+%{
+enum G_TOKENS {
+  RAISE = 1,
+  PLUNGE,
+  MILL,
+
+  AXIS_X,
+  AXIS_Y,
+  AXIS_Z,
+
+  NUM_INTEGER,
+  NUM_FLOAT,
+
+  UNK
+};
+%}
+
+%option noyywrap
+
+digit       [0-9]
+letter      [a-zA-Z]
+decimal     \-?([0-9]*\.[0-9]+)|([0-9]+\.[0-9]*)
+integer     \-?[0-9]+
+
+%%
+
+G0          { printf ("%s\n", yytext); return RAISE; }
+G1          { printf ("%s\n", yytext); return PLUNGE; }
+G4          { printf ("%s\n", yytext); return MILL; }
+X           { printf ("%s\n", yytext); return AXIS_X; }
+Y           { printf ("%s\n", yytext); return AXIS_Y; }
+Z           { printf ("%s\n", yytext); return AXIS_Z; }
+
+{decimal}   { printf ("%s\n", yytext); return NUM_FLOAT; }
+{integer}   { printf ("%s\n", yytext); return NUM_INTEGER; }
+
+[ \t\n\r]   /*Skip whitespace*/
+.           { fprintf(stderr, "!%s\n", yytext); return UNK; }
