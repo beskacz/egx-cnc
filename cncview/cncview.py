@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import pygame._view
 import pygame, sys, os
 from pygame.locals import *

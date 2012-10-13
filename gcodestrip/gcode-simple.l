@@ -27,6 +27,8 @@ integer     \-?[0-9]+
 G00         { printf ("%s\n", yytext); return RAISE; }
 G01         { printf ("%s\n", yytext); return PLUNGE; }
 G04         { printf ("%s\n", yytext); return MILL; }
+P0          { }
+\(.*        { }
 X           { printf ("%s\n", yytext); return AXIS_X; }
 Y           { printf ("%s\n", yytext); return AXIS_Y; }
 Z           { printf ("%s\n", yytext); return AXIS_Z; }

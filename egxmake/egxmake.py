@@ -47,9 +47,28 @@ def make_egx(tokens, outf):
     while(True):
       #milling starts at a G04 command and ends on a G00 command
       c = tokens.pop()
-      if c == 'G04': #Go SLOW command -> PD
-        pass
-      if c == 'G00':
+      if c == 'G04': #Go slow, translate as PD
+        x = px
+        y = py
+        z = pz
+        t = tokens.pop()
+        while t in ['X', 'Y', 'Z']:
+          if t == 'X':
+            x = float(tokens.pop()*UNIT_RATIO)
+            t = tokens.pop()
+          if t == 'Y':
+            y = float(tokens.pop()*UNIT_RATIO)
+            t = tokens.pop()
+          if t == 'Z':
+            z = float(tokens.pop()*UNIT_RATIO)
+            t = tokens.pop()
+          print(x,y)
+          outf.write(bytes('PD%d,%d;' % (x,y), 'ASCII'))
+          px = x
+          py = y
+          pz = z
+        tokens.append(t)
+      elif c == 'G00':
         x = px
         y = py
         z = pz
@@ -75,7 +94,7 @@ def make_egx(tokens, outf):
         pass
         print('Warning, orphaned token (%s)' % str(c) )
   except IndexError: #End of tokens
-    outf.write(b'PU;\r\n')
+    outf.write(b'PU;\r\n\r\n')
     return None
 
 if __name__ == '__main__':
