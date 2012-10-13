@@ -24,9 +24,9 @@ integer     \-?[0-9]+
 
 %%
 
-G0          { printf ("%s\n", yytext); return RAISE; }
-G1          { printf ("%s\n", yytext); return PLUNGE; }
-G4          { printf ("%s\n", yytext); return MILL; }
+G00         { printf ("%s\n", yytext); return RAISE; }
+G01         { printf ("%s\n", yytext); return PLUNGE; }
+G04         { printf ("%s\n", yytext); return MILL; }
 X           { printf ("%s\n", yytext); return AXIS_X; }
 Y           { printf ("%s\n", yytext); return AXIS_Y; }
 Z           { printf ("%s\n", yytext); return AXIS_Z; }
