@@ -5,6 +5,9 @@ import pygame, sys, os
 from pygame.locals import *
 import getopt
 
+XRES   = 640
+YRES   = 480
+SRATIO = XRES/YRES
 
 def parse_cnc(in_txt):
     charset  = '.,;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -19,13 +22,13 @@ def draw_line(surface, color, start_pos, end_pos, mill_max):
     mill_ratio = mill_max[0]/mill_max[1] #Ratio >1 if landscape, <1 if portrait
     tick = None
     #print(surface, color, start_pos, end_pos, mill_max)
-    if mill_ratio >= 1: #width (x) is limiting
-        tick = 800/mill_max[0]
+    if mill_ratio >= SRATIO: #width (x) is limiting
+        tick = XRES/mill_max[0]
     else:               #height (y) is limiting
-        tick = 800/mill_max[1]
+        tick = YRES/mill_max[1]
 
-    orig_ = (int(start_pos[0] * (tick)), 800 - int((start_pos[1] * (tick))))
-    dest_ = (int(end_pos[0] * (tick)), 800 - int((end_pos[1] * (tick))))
+    orig_ = (int(start_pos[0] * (tick)), YRES - int((start_pos[1] * (tick))))
+    dest_ = (int(end_pos[0] * (tick)), YRES - int((end_pos[1] * (tick))))
     #print('Line from %s to %s' % (str(orig_), str(dest_)))
     pygame.draw.aaline(surface, color, orig_, dest_)
     pygame.display.flip()
@@ -100,7 +103,7 @@ if __name__ == '__main__':
         tokens = parse_cnc(f.read())
     #Set-up pygame
     print ("Pygame initialized, Modules loaded: %d. Failed: %d" % pygame.init())
-    window = pygame.display.set_mode((800,800))
+    window = pygame.display.set_mode((XRES,YRES))
     pygame.display.set_caption("CNC viewer")
     screen = pygame.display.get_surface()
     #Draw CNC
