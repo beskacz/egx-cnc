@@ -3,11 +3,22 @@
 import pygame._view
 import pygame, sys, os
 from pygame.locals import *
-import getopt
+import tkinter as tk
+from tkinter.filedialog import askopenfilename
+import argparse
 
 XRES   = 640
 YRES   = 480
 SRATIO = XRES/YRES
+
+def input(events):
+   '''Process SDL events'''
+   for event in events: 
+      if event.type == QUIT: 
+         sys.exit(0) 
+      else:
+          #print event
+          pass
 
 def parse_cnc(in_txt):
     charset  = '.,;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -33,7 +44,8 @@ def draw_line(surface, color, start_pos, end_pos, mill_max):
     pygame.draw.aaline(surface, color, orig_, dest_)
     pygame.display.flip()
 
-def draw_cnc(tokens, surface):
+def draw_cnc(tokens, surface, verbose = False):
+    line_count = 0
     min_x = 0
     min_y = 0
     max_x = None
@@ -50,7 +62,8 @@ def draw_cnc(tokens, surface):
             max_x = int(v[2])
             max_y = int(v[3])
             break
-    print("CNC space from (%d,%d) to (%d, %d)" % (min_x, min_y, max_x, max_y))
+    if verbose:
+        print("CNC space from (%d,%d) to (%d, %d)" % (min_x, min_y, max_x, max_y))
     #search for PD|PU tokens
     last_x = 0
     last_y = 0
@@ -64,7 +77,8 @@ def draw_cnc(tokens, surface):
             else:
                 target_x = int(v[0])
                 target_y = int(v[1])
-                print ('goto (%s,%s) [DOWN]' % (v[0], v[1]))
+                if verbose:
+                    print ('goto (%s,%s) [DOWN]' % (v[0], v[1]))
                 lines+=1
                 draw_line(surface, color_dn, (last_x, last_y), (target_x, target_y), (max_x, max_y))
         elif t[:2] == 'PU':
@@ -74,29 +88,33 @@ def draw_cnc(tokens, surface):
             else:
                 target_x = int(v[0])
                 target_y = int(v[1])
-                print ('goto (%s,%s) [UP]' % (v[0], v[1]))
+                if verbose:
+                    print ('goto (%s,%s) [UP]' % (v[0], v[1]))
                 lines+=1
                 draw_line(surface, color_up, (last_x, last_y), (target_x, target_y), (max_x, max_y))
         last_x = target_x
         last_y = target_y
+        line_count += 1
+        if (line_count%100) == 0:
+            input(pygame.event.get())
     #Display the result
-    print("%d segments drawn" % lines)
+    if verbose:
+        print("%d segments drawn" % lines)
     pygame.display.flip()
-            
-def input(events): 
-   for event in events: 
-      if event.type == QUIT: 
-         sys.exit(0) 
-      else:
-          #print event
-          pass
-
+    
 if __name__ == '__main__':
+    #Argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", default=None, metavar='EGX file', dest='in_file')
+    parser.add_argument('-v', default=False, action='store_true', dest='is_verbose')
+    args = parser.parse_args()
     #Load CNC file
-    filename = None
     try:
-        filename = sys.argv[1]
+        filename = args.in_file
     except Exception as e:
+        pass
+    if filename == None:
+        filename = askopenfilename()
         pass
     tokens = None
     with open(filename, 'r') as f:
@@ -107,7 +125,7 @@ if __name__ == '__main__':
     pygame.display.set_caption("CNC viewer")
     screen = pygame.display.get_surface()
     #Draw CNC
-    draw_cnc(tokens, screen)
+    draw_cnc(tokens, screen, args.is_verbose)
     while True: 
         input(pygame.event.get())
         pygame.time.delay(100)
