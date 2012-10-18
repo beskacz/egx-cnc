@@ -6,7 +6,7 @@
     egxmake -o script.egx
 '''
 
-UNIT_RATIO = 1000
+UNIT_RATIO = 10000/2.54
 
 def load_bare(f):
     tokens = []
@@ -98,7 +98,7 @@ def make_egx(tokens, outf):
     return None
 
 if __name__ == '__main__':
-    FILENAME = '../sample/strip/front.bare'
+    FILENAME = '../sample/strip/back.bare'
     tokens = None
     with open(FILENAME, 'r') as f:
       tokens = load_bare(f)
