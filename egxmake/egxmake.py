@@ -6,7 +6,7 @@
     egxmake -o script.egx
 '''
 
-UNIT_RATIO = 10000/2.54
+UNIT_RATIO = 10000/2.54/1.5
 
 def load_bare(f):
     tokens = []
