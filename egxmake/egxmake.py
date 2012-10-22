@@ -6,7 +6,8 @@
     egxmake -o script.egx
 '''
 
-UNIT_RATIO = 10000/2.54/1.5
+UNIT_RATIO = 2540 # 1 inch -> 25.4 mm  -> 2540 mm·10⁻²
+                  # Also: 1mm -> 100 mm·10⁻²
 
 def load_bare(f):
     tokens = []
