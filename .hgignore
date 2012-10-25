@@ -3,4 +3,4 @@ syntax: regexp
 /build/
 \.o$
 a\.out$
-
+Debug/
