@@ -8,9 +8,9 @@
 #ifndef EGX_H_
 #define EGX_H_
 
-#include <iostream>
 #include <istream>
 #include <list>
+#include <boost/regex.hpp>
 
 namespace egx {
 

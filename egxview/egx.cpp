@@ -6,7 +6,6 @@
  */
 
 #include "egx.h"
-#include <boost/regex.hpp>
 
 namespace egx {
 

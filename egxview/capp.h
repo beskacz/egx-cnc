@@ -8,7 +8,8 @@
 #ifndef CAPP_H_
 #define CAPP_H_
 
-
-
+#include <iostream>
+#include <istream>
+#include <fstream>
 
 #endif /* CAPP_H_ */

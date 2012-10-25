@@ -6,9 +6,8 @@
  */
 
 #include "capp.h"
-#include <iostream>
-#include <istream>
-#include <fstream>
+#include "glutui.h"
+
 using namespace std;
 
 #include "egx.h"
@@ -16,6 +15,10 @@ using namespace std;
 
 //Argument 1 -> input file
 int main(int argc, char* argv[]){
+	ui::glutui::onLoad();
+}
+
+int old_main(int argc, char* argv[]){
 	ifstream* egxfile;
 	if (argc == 1){
 		const char default_file[] =  "/home/neonman/egx-cnc/sample/egx/ASD.egx";
@@ -51,4 +54,5 @@ int main(int argc, char* argv[]){
 	}
 	delete(l);
 	cout<<"Program end"<<endl;
+	return(1);
 }

@@ -4,3 +4,5 @@ syntax: regexp
 \.o$
 a\.out$
 Debug/
+Release/
+
