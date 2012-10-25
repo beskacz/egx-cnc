@@ -14,7 +14,7 @@
 
 namespace ui {
 namespace glutui{
- void onLoad();
+ void onLoad(int argc, char* argv[]);
 } /* namespace glutui */
 } /* namespace ui */
 #endif /* GLUTUI_H_ */

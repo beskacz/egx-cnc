@@ -19,13 +19,12 @@ void onDisplay(){
 	glutSwapBuffers();
 }
 
-void onLoad() {
+void onLoad(int argc, char* argv[]) {
 	//Setup OpenGL & Glut
-	int nada = 0;
-	glutInit(&nada, NULL);
+	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA|GLUT_DOUBLE|GLUT_DEPTH);
 	glutInitWindowSize(640, 480);
-	glutCreateWindow("My First Triangle");
+	glutCreateWindow("egxView");
 
 	/* Extension wrangler initialising */
 	GLenum glew_status = glewInit();

@@ -15,7 +15,7 @@ using namespace std;
 
 //Argument 1 -> input file
 int main(int argc, char* argv[]){
-	ui::glutui::onLoad();
+	ui::glutui::onLoad(argc, argv);
 }
 
 int old_main(int argc, char* argv[]){
