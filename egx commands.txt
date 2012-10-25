@@ -1,0 +1,10 @@
+IN
+CS
+CA
+IP
+LT
+PA
+PU
+VS
+!VZ (VZ?)
+PD
