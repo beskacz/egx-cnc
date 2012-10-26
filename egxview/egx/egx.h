@@ -11,12 +11,19 @@
 #include <istream>
 #include <list>
 #include <boost/regex.hpp>
+#include <GL/glew.h> /* Needed for gl types */
 
 namespace egx {
 
+//Types & structs
+struct point{
+	GLfloat x;
+	GLfloat y;
+};
+
 ///A single track segment or a drill point
 class Segment {
-private:
+public:
 	long xo, yo;
 	long xd, yd;
 public:
@@ -35,6 +42,7 @@ public:
 	Track();
 	void addSegment(Segment s);
 	std::list<Segment> getSegments();
+	point* getPointArray();
 	long size();
 	virtual ~Track();
 };
@@ -52,6 +60,7 @@ public:
 	Layer();
 	void addTrack(Track t);
 	std::list<Track> getTracks();
+	long size();
 	virtual ~Layer();
 };
 

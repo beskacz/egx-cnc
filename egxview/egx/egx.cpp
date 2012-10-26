@@ -46,6 +46,27 @@ std::list<Segment> Track::getSegments(){
 	return this->seg;
 }
 
+point* Track::getPointArray(){
+	if (this->seg.size()==0)
+		return NULL;
+	int i = 0; //Array index
+	point* ret_array = new point[this->seg.size() + 1];
+	std::list<Segment>::iterator iter = this->seg.begin();
+	ret_array[i].x   = iter->xo;
+	ret_array[i].y   = iter->yo;
+	ret_array[i+1].x = iter->xd;
+	ret_array[i+1].y = iter->yd;
+	i+=2;
+	iter++;
+
+	while (iter != this->seg.end()){
+		ret_array[i].x   = iter->xd;
+		ret_array[i].y = iter->yd;
+		iter++; i++;
+	}
+	return ret_array;
+};
+
 long Track::size(){
 	return this->seg.size();
 }
@@ -69,6 +90,10 @@ void Layer::addTrack(Track t){
 
 std::list<Track> Layer::getTracks(){
 	return this->tracks;
+}
+
+long Layer::size(){
+	return this->tracks.size();
 }
 
 Layer::~Layer(){

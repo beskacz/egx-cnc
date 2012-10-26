@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#include "egx.h"
+#include "egx/egx.h"
 
 
 //Argument 1 -> input file
