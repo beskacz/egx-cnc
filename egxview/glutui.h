@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include "egx/egx.h"
+#include "ui.h"
 
 //Do something more ... elegant. Please.
 
@@ -20,16 +21,7 @@ namespace ui {
 namespace glutui{
 
 
-class UiState{
-public:
-	static UiState* getInstance();
-protected:
-	UiState();
-private:
-	static UiState* instance;
-};
-
-void onLoad(int argc, char* argv[]);
+int onLoad(int argc, char* argv[]);
 
 
 } /* namespace glutui */
