@@ -48,20 +48,6 @@ int onLoad(int argc, char* argv[]) {
 		glutDisplayFunc(onDisplay);
 	}
 
-	//Load some test data
-	ui::UiState* s = ui::UiState::getInstance();
-
-	const char default_file[] =  "/home/neonman/egx-cnc/sample/egx/ASD.egx";
-	std::ifstream* f = new std::ifstream(default_file);
-	if ( ! f->fail()){
-		egx::Layer* l = egx::loadLayer_egx(f);
-		//pv = l->getTracks().front().getPointArray();
-		//pc = l->getTracks().front().size();
-	    delete(l);
-    	delete(f);
-	}
-
-
 	//Start glut
 	glutMainLoop();
 	return 1;

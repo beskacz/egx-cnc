@@ -8,10 +8,28 @@
 #ifndef SDLUI_H_
 #define SDLUI_H_
 
+#include <SDL/SDL.h>
+#include <SDL/SDL_gfxPrimitives.h>
+#include "ui.h"
+
 namespace ui{
 namespace sdlui{
 
-int onLoad(int argc, char* argv[]);
+class CApp {
+    private:
+        bool    Running;
+        SDL_Surface*    Surf_Display;
+        unsigned long ticks;
+    public:
+        CApp();
+        int OnExecute();
+    public:
+        bool OnInit();
+        void OnEvent(SDL_Event* Event);
+        void OnLoop();
+        void OnRender();
+        void OnCleanup();
+};
 
 } /* sdlui namespace */
 } /* UI namespace */
