@@ -25,6 +25,7 @@ void onDisplay(){
 }
 
 int onLoad(int argc, char* argv[]) {
+	return -1;
 	//Setup OpenGL & Glut
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA|GLUT_DOUBLE|GLUT_DEPTH);

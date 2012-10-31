@@ -9,66 +9,51 @@
 
 namespace egx {
 
-// Class: Segment
-Segment::Segment(long x, long y){
-	xo = x;
-	yo = y;
-	xd = x;
-	yd = y;
+//Class: Tool
+Tool::Tool(){
+	this->type = this->TYPE_MILL;
+	this->description = "---- DEFAULT TOOL ----";
 }
 
-Segment::Segment(long x_orig, long y_orig, long x_dest, long y_dest){
-	xo = x_orig;
-	yo = y_orig;
-	xd = x_dest;
-	yd = y_dest;
+Tool::Tool(int type, std::string description){
+	this->type = type;
+	this->description = description;
 }
 
-Segment::~Segment(){
+Tool::~Tool(){
+
+}
+
+//Class: Point
+Point::Point(double x, double y){
+	this->x = x;
+	this->y = y;
+}
+
+Point::~Point(){
 
 }
 
 //Class: Track
-Track::Track(std::list<Segment> segments, double diameter){
-	this->seg = segments;
-	this->tool_diameter = diameter;
+Track::Track(std::list<Point> points, Tool tool){
+	this->points = points;
+	this->tool = tool;
 }
 
 Track::Track(){
-	this->tool_diameter = 0;
+
 }
 
-void Track::addSegment(Segment s){
-	this->seg.push_back(s);
+void Track::addPoint(Point p){
+	this->points.push_back(p);
 }
 
-std::list<Segment> Track::getSegments(){
-	return this->seg;
+std::list<Point> Track::getPoints(){
+	return this->points;
 }
-
-point* Track::getPointArray(){
-	if (this->seg.size()==0)
-		return NULL;
-	int i = 0; //Array index
-	point* ret_array = new point[this->seg.size() + 1];
-	std::list<Segment>::iterator iter = this->seg.begin();
-	ret_array[i].x   = iter->xo;
-	ret_array[i].y   = iter->yo;
-	ret_array[i+1].x = iter->xd;
-	ret_array[i+1].y = iter->yd;
-	i+=2;
-	iter++;
-
-	while (iter != this->seg.end()){
-		ret_array[i].x   = iter->xd;
-		ret_array[i].y = iter->yd;
-		iter++; i++;
-	}
-	return ret_array;
-};
 
 long Track::size(){
-	return this->seg.size();
+	return this->points.size();
 }
 
 Track::~Track(){
@@ -148,8 +133,12 @@ Layer* loadLayer_egx(std::istream* f){
 				std::string s_y = tmp_s.substr(tmp_s.find(',')+1);
 				long cx = atol(s_x.c_str());
 				long cy = atol(s_y.c_str());
-				Segment s(last_x, last_y, cx, cy);
-				t->addSegment(s);
+				if (t->size() == 0){
+					Point p0(last_x * 0.01, last_y * 0.01);
+				    t->addPoint(p0);
+				}
+				Point p(cx * 0.01, cy * 0.01);
+				t->addPoint(p);
 				last_x = cx;
 				last_y = cy;
 			}

@@ -10,39 +10,49 @@
 
 #include <istream>
 #include <list>
+#include <string>
 #include <boost/regex.hpp>
-#include <GL/glew.h> /* Needed for gl types */
 
 namespace egx {
 
-//Types & structs
-struct point{
-	GLfloat x;
-	GLfloat y;
+//Tool specs
+class Tool{
+public:
+	//Static constants
+	const static int TYPE_DRILL   = 1;
+	const static int TYPE_MILL    = 2;
+
+private:
+	//Class attributes
+	std::string description;
+	int type;
+
+public:
+	Tool(); //Default tool
+	Tool(int type, std::string description);
+	virtual ~Tool();
+
 };
 
-///A single track segment or a drill point
-class Segment {
+//One point, coordinates in mm
+class Point {
 public:
-	long xo, yo;
-	long xd, yd;
-public:
-	Segment(long x_orig, long y_orig, long x_dest, long y_dest);
-	Segment(long x, long y);
-	virtual ~Segment();
+	double x;
+	double y;
+	Point(double x, double y);
+	virtual ~Point();
 };
 
 ///A set of contiguous track segments
 class Track {
 private:
-	std::list<Segment> seg;
-	double tool_diameter;
+	std::list<Point> points;
+	Tool tool;
 public:
-	Track(std::list<Segment> segments, double diameter);
+	Track(std::list<Point> segments, Tool tool);
 	Track();
-	void addSegment(Segment s);
-	std::list<Segment> getSegments();
-	point* getPointArray();
+	void addPoint(Point s);
+	std::list<Point> getPoints();
 	long size();
 	virtual ~Track();
 };
