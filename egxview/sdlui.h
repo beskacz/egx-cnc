@@ -11,6 +11,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_gfxPrimitives.h>
 #include "ui.h"
+#include "egx/egx_loaders.h"
 
 namespace ui{
 namespace sdlui{

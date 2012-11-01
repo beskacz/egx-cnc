@@ -8,7 +8,6 @@
 #ifndef EGX_H_
 #define EGX_H_
 
-#include <istream>
 #include <list>
 #include <string>
 #include <boost/regex.hpp>
@@ -31,7 +30,6 @@ public:
 	Tool(); //Default tool
 	Tool(int type, std::string description);
 	virtual ~Tool();
-
 };
 
 //One point, coordinates in mm
@@ -73,10 +71,6 @@ public:
 	long size();
 	virtual ~Layer();
 };
-
-//Helper functions
-///Loads an egx file and returns a Layer object
-Layer* loadLayer_egx(std::istream* f);
 
 } /* namespace egx */
 #endif /* EGX_H_ */

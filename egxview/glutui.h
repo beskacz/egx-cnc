@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include "egx/egx.h"
+#include "egx/egx_loaders.h"
 #include "ui.h"
 
 //Do something more ... elegant. Please.
