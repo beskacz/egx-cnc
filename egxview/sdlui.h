@@ -11,6 +11,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_gfxPrimitives.h>
 #include <stdlib.h>
+#include <boost/signals2/mutex.hpp>
 #include "ui.h"
 #include "egx/egx_loaders.h"
 #include "egx/egx.h"
@@ -25,6 +26,8 @@ public:
 	double scale_y;
 	double offset_x;
 	double offset_y;
+	bool   redraw;
+	boost::signals2::mutex ss_mutex;
 
 	//Method
 	static SdlUiState* getInstance();

@@ -18,6 +18,7 @@ SdlUiState::SdlUiState(){
 	this->offset_y = 0.0;
 	this->scale_x  = 3.0;
 	this->scale_y  = this->scale_x;
+	this->redraw = true;
 }
 
 SdlUiState* SdlUiState::getInstance(){
@@ -39,6 +40,7 @@ int CApp::OnExecute() {
     }
 
     SDL_Event Event;
+    ui::sdlui::SdlUiState* ss = ui::sdlui::SdlUiState::getInstance();
 
     while(Running) {
         while(SDL_PollEvent(&Event)) {
@@ -46,7 +48,19 @@ int CApp::OnExecute() {
         }
 
         OnLoop();
-        OnRender();
+        if(ss->ss_mutex.try_lock()){
+        	if(ss->redraw){
+        		OnRender();
+        		ss->redraw=false;
+        	}
+        	ss->ss_mutex.unlock();
+        }
+    	//Save CPU cycles
+    	unsigned long render_time = SDL_GetTicks() - this->ticks;
+    	if (render_time < 33)
+    		SDL_Delay(33 - render_time);
+    	this->ticks = SDL_GetTicks();
+
     }
     OnCleanup();
     return 0;
@@ -64,12 +78,18 @@ bool CApp::OnInit() {
 }
 
 void CApp::OnEvent(SDL_Event* event) {
+	ui::sdlui::SdlUiState* ss = ui::sdlui::SdlUiState::getInstance();
 	switch(event->type){
 	case SDL_QUIT:
         Running = false;
         break;
 	case SDL_VIDEORESIZE: //Create a new surface on resize event
 		this->Surf_Display = SDL_SetVideoMode( event->resize.w, event->resize.h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE );
+		//Resizing requires a redraw
+		ss->ss_mutex.lock();
+		ss->redraw = true;
+		ss->ss_mutex.unlock();
+		//Not being able to make a surface exits
 		if (this->Surf_Display == NULL)
 			Running = false;
 		break;
@@ -114,11 +134,6 @@ void CApp::OnRender() {
 
 	//Flip buffers
 	SDL_Flip(Surf_Display);
-	//Save CPU cycles
-	unsigned long render_time = SDL_GetTicks() - this->ticks;
-	if (render_time < 33)
-		SDL_Delay(33 - render_time);
-	this->ticks = SDL_GetTicks();
 }
 
 void CApp::OnCleanup() {

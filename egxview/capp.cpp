@@ -7,7 +7,6 @@
 
 #include "capp.h"
 #include "ui.h"
-#include "glutui.h"
 #include "sdlui.h"
 
 using namespace std;
@@ -29,10 +28,6 @@ int main(int argc, char* argv[]){
     	delete(f);
 	}
 
-	//if (ui::glutui::onLoad(argc, argv) < 0){
-	    ui::sdlui::CApp theApp;
-	    return theApp.OnExecute();
-	//}
-	//else
-	//	return 1;
+	ui::sdlui::CApp theApp;
+	return theApp.OnExecute();
 }
