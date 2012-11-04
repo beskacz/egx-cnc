@@ -20,7 +20,7 @@ int main(int argc, char* argv[]){
 	//Load some test data
 	ui::UiState* s = ui::UiState::getInstance();
 
-	const char default_file[] =  "/home/neonman/egx-cnc/sample/egx/ASD.egx";
+	const char default_file[] =  "/home/neonman/hg/egx-cnc/sample/egx/S.egx";
 	std::ifstream* f = new std::ifstream(default_file);
 	if ( ! f->fail()){
 		egx::Layer* l = egx::loadLayer_egx(f);
@@ -29,10 +29,10 @@ int main(int argc, char* argv[]){
     	delete(f);
 	}
 
-	if (ui::glutui::onLoad(argc, argv) < 0){
+	//if (ui::glutui::onLoad(argc, argv) < 0){
 	    ui::sdlui::CApp theApp;
 	    return theApp.OnExecute();
-	}
-	else
-		return 1;
+	//}
+	//else
+	//	return 1;
 }
