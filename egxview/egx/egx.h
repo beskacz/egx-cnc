@@ -39,6 +39,7 @@ public:
 	double y;
 	Point(double x, double y);
 	virtual ~Point();
+	Point operator+(Point p);
 };
 
 ///A set of contiguous track segments
@@ -52,6 +53,7 @@ public:
 	void addPoint(Point s);
 	std::list<Point> getPoints();
 	long size();
+	void translate(Point p);
 	virtual ~Track();
 };
 
@@ -69,7 +71,22 @@ public:
 	void addTrack(Track t);
 	std::list<Track> getTracks();
 	long size();
+	void translate(Point p);
 	virtual ~Layer();
+};
+
+class Board {
+private:
+	std::list<Layer> layers;
+public:
+	Board(std::list<Layer> layers);
+	Board();
+	void addLayer(Layer l);
+	std::list<Layer> getLayers();
+	long size();
+	void normalize();
+	void Translate(Point p);
+	virtual ~Board();
 };
 
 } /* namespace egx */

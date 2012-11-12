@@ -30,6 +30,11 @@ Point::Point(double x, double y){
 	this->y = y;
 }
 
+Point Point::operator+(Point p){
+	Point temp(this->x + p.x, this->y + p.y);
+	return temp;
+}
+
 Point::~Point(){
 
 }
@@ -54,6 +59,17 @@ std::list<Point> Track::getPoints(){
 
 long Track::size(){
 	return this->points.size();
+}
+
+void Track::translate(Point p){
+	//For each point in the track, add the parameter point
+	std::list<Point>::iterator iter = this->points.begin();
+	while(iter != this->points.end()){
+		*iter = (*iter) + p;
+		iter++;
+	}
+
+
 }
 
 Track::~Track(){
@@ -81,7 +97,51 @@ long Layer::size(){
 	return this->tracks.size();
 }
 
+void Layer::translate(Point p){
+	std::list<Track>::iterator iter = this->tracks.begin();
+	while(iter != this->tracks.end()){
+		iter->translate(p);
+		iter++;
+	}
+}
+
 Layer::~Layer(){
+
+}
+
+//Class: Board
+Board::Board(std::list<Layer> layers){
+	this->layers = layers;
+}
+
+Board::Board(){
+
+}
+
+void Board::addLayer(Layer l){
+	this->layers.push_back(l);
+}
+
+std::list<Layer> Board::getLayers(){
+	return this->layers;
+}
+
+long Board::size(){
+	return this->layers.size();
+}
+
+void Board::normalize(){
+
+}
+
+void Board::Translate(Point p){
+	std::list<Layer>::iterator iter = this->layers.begin();
+	while(iter != this->layers.end()){
+		iter->translate(p);
+		iter++;
+	}
+}
+virtual Board::~Board(){
 
 }
 
