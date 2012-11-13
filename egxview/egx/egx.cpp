@@ -131,17 +131,45 @@ long Board::size(){
 }
 
 void Board::normalize(){
+	double p_x = DBL_MAX;
+	double p_y = DBL_MAX;
+	//Read each point from each track from each layer
+	std::list<Layer>::iterator iter_layer = this->layers.begin();
+	while (iter_layer != this->layers.end()){
+		//For each layer
+		std::list<Track> tracks = iter_layer->getTracks();
+		std::list<Track>::iterator iter_track = tracks.begin();
+		while(iter_track != tracks.end()){
+			//For each track
+			std::list<Point> points = iter_track->getPoints();
+			std::list<Point>::iterator iter_point = points.begin();
+			while(iter_point != points.end()){
+				//For each point, find the minimum X and Y
+				if (iter_point->x < p_x)
+					p_x = iter_point->x;
+				if (iter_point->y < p_y)
+					p_y = iter_point->y;
+				iter_point++;
+			}
+			iter_track++;
+		}
+		iter_layer++;
+	}
+	if ((p_y < DBL_MAX) && (p_x < DBL_MAX)){
+		Point p(-p_x, -p_y);
+		this->translate(p);
+	}
 
 }
 
-void Board::Translate(Point p){
+void Board::translate(Point p){
 	std::list<Layer>::iterator iter = this->layers.begin();
 	while(iter != this->layers.end()){
 		iter->translate(p);
 		iter++;
 	}
 }
-virtual Board::~Board(){
+Board::~Board(){
 
 }
 

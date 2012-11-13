@@ -11,6 +11,7 @@
 #include <list>
 #include <string>
 #include <boost/regex.hpp>
+#include <float.h>
 
 namespace egx {
 
@@ -85,7 +86,7 @@ public:
 	std::list<Layer> getLayers();
 	long size();
 	void normalize();
-	void Translate(Point p);
+	void translate(Point p);
 	virtual ~Board();
 };
 
