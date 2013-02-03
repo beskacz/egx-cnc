@@ -8,11 +8,17 @@ class g:
   out_f = None
   bctr = 0
 
+class config:
+  show_warning = True
+  show_info = True
+  show_fix = True
+  show_error = True
+  input_filename = 'in.ngc'
+  output_filename = 'out.egx'
+
 #Boilerplate and I/O
 def init():
-    g.scr = list(open('back.ngc', 'rb').read())
     g.scr.reverse()
-    g.out_f = open('out.egx', 'wb')
     #EGX file preample, from header.egx
     preamble = bytes((\
 	0x03, 0x3B, 0x49, 0x4E, 0x3B, 0x43, 0x53, 0x36, 0x3B, 0x43, 0x41, 0x38, \
@@ -30,22 +36,27 @@ def getChar():
     return chr(g.scr.pop())
 
 def expected(msg):
+  if config.show_error:
     sys.stderr.write("[ERR] @%d Found <%s>. Expected: %s\n" % (g.bctr, g.look, msg))
-    cleanup()
-    quit()
+  cleanup()
+  quit(-1)
 
 def abort(msg):
+  if config.show_error:
     sys.stderr.write("[ERR] Error at %d: %s\n" % (g.bctr, msg))
-    cleanup()
-    quit()
+  cleanup()
+  quit(-2)
 
 def warn(msg):
+  if config.show_warning:
     sys.stderr.write("[WRN] Warning at %d: %s\n" % (g.bctr, msg))
 
 def fix(code):
+  if config.show_fix:
     sys.stderr.write("[FIX] %s\n" % code)
 
 def info(msg):
+  if config.show_info:
     sys.stderr.write("[NFO] %s\n" % msg)
 
 def match_cmd(cmd, num=None):
@@ -247,8 +258,18 @@ def command():
       #Error
       expected("Command (G/M/S)")
 
+####
+## Test main procedure
+####
+
+def test_compiler():
+  g.scr = list(open(config.input_filename, 'rb').read())
+  g.out_f = open(config.output_filename, 'wb')
+  #g.out_f = sys.stdout
+  init()
+  while g.look != '':
+    command()
+  cleanup()
+
 if __name__ == '__main__':
-    init()
-    while g.look != '':
-      command()
-    cleanup()
+  test_compiler()
