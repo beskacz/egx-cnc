@@ -161,13 +161,13 @@ def dwell():
     cy = 0
     cz = 0
     if match_cmd('X'):
-      cx = inch2egx(float(g.look[1:]))
+      cx = float(g.look[1:])
       getToken()
     if match_cmd('Y'):
-      cy = inch2egx(float(g.look[1:]))
+      cy = float(g.look[1:])
       getToken()
     if match_cmd('Z'):
-      cz = inch2egx(float(g.look[1:]))
+      cz = float(g.look[1:])
       getToken()
     if cz != 0:
       warn("Dwell command with nonzero Z movement (Z ignored)")
