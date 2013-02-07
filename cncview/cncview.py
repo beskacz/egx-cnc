@@ -3,8 +3,9 @@
 import pygame._view
 import pygame, sys, os
 from pygame.locals import *
-import tkinter as tk
-from tkinter.filedialog import askopenfilename
+#import tkinter as tk
+#from tkinter.filedialog import askopenfilename
+import easygui
 import argparse
 
 XRES   = 640
@@ -114,8 +115,7 @@ if __name__ == '__main__':
     except Exception as e:
         pass
     if filename == None:
-        filename = askopenfilename()
-        pass
+        filename = easygui.fileopenbox()
     tokens = None
     with open(filename, 'r') as f:
         tokens = parse_cnc(f.read())
@@ -130,4 +130,3 @@ if __name__ == '__main__':
         input(pygame.event.get())
         pygame.time.delay(100)
 
-    
