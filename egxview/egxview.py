@@ -3,8 +3,6 @@
 import pygame._view
 import pygame, sys, os
 from pygame.locals import *
-#import tkinter as tk
-#from tkinter.filedialog import askopenfilename
 import easygui
 import argparse
 
