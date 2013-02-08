@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import pygame._view
 import pygame, sys, os
@@ -37,8 +37,8 @@ def draw_line(surface, color, start_pos, end_pos, mill_max):
     else:               #height (y) is limiting
         tick = YRES/mill_max[1]
 
-    orig_ = (int(start_pos[0] * (tick)), YRES - int((start_pos[1] * (tick))))
-    dest_ = (int(end_pos[0] * (tick)), YRES - int((end_pos[1] * (tick))))
+    orig_ = (int(start_pos[0] * (tick)) + 10, YRES - int((start_pos[1] * (tick))) - 10)
+    dest_ = (int(end_pos[0] * (tick)) + 10, YRES - int((end_pos[1] * (tick))) - 10)
     #print('Line from %s to %s' % (str(orig_), str(dest_)))
     pygame.draw.aaline(surface, color, orig_, dest_)
     pygame.display.flip()
