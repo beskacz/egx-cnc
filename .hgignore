@@ -6,3 +6,4 @@ a\.out$
 Debug/
 Release/
 __pycache__
+sample/gerber/

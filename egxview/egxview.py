@@ -43,6 +43,9 @@ def draw_line(surface, color, start_pos, end_pos, mill_max):
     pygame.draw.aaline(surface, color, orig_, dest_)
     pygame.display.flip()
 
+def adjust_magnitude(n):
+  return n*0.1
+
 def draw_cnc(tokens, surface, verbose = False):
     line_count = 0
     min_x = 0
@@ -58,8 +61,8 @@ def draw_cnc(tokens, surface, verbose = False):
             v = t[2:].split(',')
             min_x = int(v[0])
             min_y = int(v[1])
-            max_x = int(v[2])
-            max_y = int(v[3])
+            max_x = int(v[2])*5
+            max_y = int(v[3])*5
             break
     if verbose:
         print("CNC space from (%d,%d) to (%d, %d)" % (min_x, min_y, max_x, max_y))
