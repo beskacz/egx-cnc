@@ -1,9 +1,10 @@
 import gcode
 import argparse
+import sys
 
 if __name__ == '__main__':
     #Parse options
-    parser = argparse.ArgumentParser("Generate a milling script for Roland EGX engravers from a G-Code script.")
+    parser = argparse.ArgumentParser(sys.argv[0], description="Generate a milling script for Roland EGX engravers from a G-Code script.")
     parser.add_argument('gcode_file', metavar='GCODE-FILE', type=str, \
                         help='A G-Code script file')
     parser.add_argument("-o", '--out', dest='filename', \
