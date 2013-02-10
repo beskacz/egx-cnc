@@ -21,7 +21,7 @@ def input(events):
           pass
 
 def parse_cnc(in_txt):
-    charset  = '.,;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    charset  = '-.,;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     tokens = None
     txt = ''
     for c in in_txt:
@@ -164,6 +164,11 @@ if __name__ == '__main__':
         pass
     if filename == None:
         filename = easygui.fileopenbox()
+        if easygui.boolbox("Also load drill plots?") == 1:
+          drill_file = easygui.fileopenbox()
+          if drill_file != None:
+            drill_file = drill_file[:-8]
+            args.drill = drill_file
 
     tokens = None
     with open(filename, 'r') as f:
@@ -194,7 +199,7 @@ if __name__ == '__main__':
           draw_cnc(tokens, screen, args.is_verbose, board_max, line=False)
           tool_ctr += 1
       except Exception as e:
-        print("Failed to load drill-plot for tool #%d" % tool_ctr)
+        print("Failed to load drill-plot for tool #%d (no more tools?)" % tool_ctr)
     #Wait for user to exit
     while True: 
         input(pygame.event.get())
