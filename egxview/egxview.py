@@ -6,10 +6,18 @@ from pygame.locals import *
 import easygui
 import argparse
 
-XRES      = 800
-YRES      = 600
-SRATIO    = XRES/YRES
-FLIP_RATE = 100
+XRES       = 800
+YRES       = 600
+SRATIO     = XRES/YRES
+FLIP_RATE  = 100
+TICK       = None
+
+#Line colors
+class color:
+  up = (0,0,255)
+  dn = (255,255,0)
+  dr = (255,0,0)
+
 
 def input(events):
    '''Process SDL events'''
@@ -33,9 +41,9 @@ def pixel_tick(mill_max):
     mill_ratio = mill_max[0]/mill_max[1] #Ratio >1 if landscape, <1 if portrait
     tick = None
     if mill_ratio >= SRATIO: #width (x) is limiting
-        tick = (XRES-20)/mill_max[0]
+      tick = (XRES-20)/mill_max[0]
     else:               #height (y) is limiting
-        tick = (YRES-20)/mill_max[1]
+      tick = (YRES-20)/mill_max[1]
     return tick
 
 
@@ -63,9 +71,6 @@ def draw_cnc(tokens, surface, verbose = False, max_xy=None, line=True):
     max_x = None
     max_y = None
     lines = 0
-    color_up = (0,0,255)
-    color_dn = (255,255,0)
-    color_dr = (255,0,0)
     verborhea = False
     #Search for IP token
     if max_xy == None:
@@ -102,9 +107,9 @@ def draw_cnc(tokens, surface, verbose = False, max_xy=None, line=True):
                     print ('goto (%s,%s) [DOWN]' % (v[0], v[1]))
                 lines+=1
                 if line:
-                  draw_line(surface, color_dn, (last_x, last_y), (target_x, target_y), (max_x, max_y))
+                  draw_line(surface, color.dn, (last_x, last_y), (target_x, target_y), (max_x, max_y))
                 else:
-                  draw_drill(surface, color_dr, (target_x, target_y), (max_x, max_y))
+                  draw_drill(surface, color.dr, (target_x, target_y), (max_x, max_y))
                 draw_count += 1
         elif t[:2] == 'PU':
             v = t[2:].split(',')
@@ -117,9 +122,9 @@ def draw_cnc(tokens, surface, verbose = False, max_xy=None, line=True):
                     print ('goto (%s,%s) [UP]' % (v[0], v[1]))
                 lines+=1
                 if line:
-                  draw_line(surface, color_up, (last_x, last_y), (target_x, target_y), (max_x, max_y))
+                  draw_line(surface, color.up, (last_x, last_y), (target_x, target_y), (max_x, max_y))
                 else:
-                  draw_drill(surface, color_dr, (target_x, target_y), (max_x, max_y))
+                  draw_drill(surface, color.dr, (target_x, target_y), (max_x, max_y))
                 draw_count += 1
         last_x = target_x
         last_y = target_y
@@ -151,10 +156,10 @@ def max_xy(tokens):
 if __name__ == '__main__':
     #Argument parser
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", default=None, metavar='EGX-FILE', dest='in_file')
+    parser.add_argument("-i", default=None, metavar='EGX-FILE', dest='in_file', type=str)
     parser.add_argument("-d", default=None, metavar='DRILL-PREFIX', dest='drill', type=str)
     parser.add_argument('-v', default=False, action='store_true', dest='is_verbose')
-    parser.add_argument('-r', default=100, metavar='REDRAW-RATE', action='store', dest='redraw_rate')
+    parser.add_argument('-r', default=100, metavar='REDRAW-RATE', action='store', dest='redraw_rate', type=int)
     args = parser.parse_args()
     FLIP_RATE = int(args.redraw_rate)
     #Load CNC file
@@ -183,6 +188,7 @@ if __name__ == '__main__':
     #Draw CNC
     draw_cnc(tokens, screen, args.is_verbose, board_max)
     #Try to load and draw drill plots
+    fnt = pygame.font.Font('./font/DejaVuSansMono.ttf', 15)
     if args.drill != None:
       tool_ctr = 1 
       try:
@@ -195,7 +201,8 @@ if __name__ == '__main__':
           tokens = None
           with open(drill_file, 'r') as f:
             tokens = parse_cnc(f.read())
-          board_max = max_xy(tokens)
+          color.dr = (255-((128 * (tool_ctr/2)) % 256), color.dr[1], (128 * tool_ctr) % 256)
+          screen.blit(fnt.render("Tool #%d" % tool_ctr, True, color.dr, None), (0, 18 * tool_ctr))
           draw_cnc(tokens, screen, args.is_verbose, board_max, line=False)
           tool_ctr += 1
       except Exception as e:

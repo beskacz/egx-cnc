@@ -11,7 +11,7 @@ class config:
   output_prefix = None
   show_fix      = False
   show_info     = False
-  
+  flip_width    = None
 
 def ignore_opcode(o):
   fix("Ignoring command <%s>" % o)
@@ -25,7 +25,7 @@ def fix(msg):
     print("[FIX] %s" % msg)
 
 def inch2egx(inch):
-    return int(inch*0.2540)
+    return int(inch*0.254) #0.254
 
 def mm2egx(inch):
     return int(inch*100)
@@ -33,7 +33,7 @@ def mm2egx(inch):
 def drill(tool, coord, f):
   x = coord[0]
   y = coord[1]
-  cmd = "PU%d,%d;PD;PU;" % (inch2egx(x), inch2egx(y))
+  cmd = "PU%d,%d;PD;PU;" % (-inch2egx(x) + (config.flip_width), inch2egx(y))
   f.write(bytes(cmd, 'ASCII'))
 
 def make_drill():
@@ -76,6 +76,7 @@ def make(cnf):
     config.show_info     = cnf['info']
     config.input_file    = in_f
     config.output_prefix = cnf['output_prefix']
+    config.flip_width    = cnf['width']
     make_drill()
 
 if __name__ == '__main__':

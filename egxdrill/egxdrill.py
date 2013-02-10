@@ -10,7 +10,7 @@ if __name__ == '__main__':
     parser.add_argument('input_file', metavar='DRILL-PLOT', type=str, \
                         help='A Gerber drill layer')
     parser.add_argument("-o", '--out', dest='output_file', \
-                      help='Write output to file', metavar="FILE", default='out.egx')
+                      help='Write output to file', metavar="FILE", default='out')
     parser.add_argument('--nowarning', action="store_false", dest="warning", \
                       default=True, help="Don't print warnings")
     parser.add_argument('--noinfo', action="store_false", dest="info", \
