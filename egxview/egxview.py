@@ -5,6 +5,7 @@ import pygame, sys, os
 from pygame.locals import *
 import easygui
 import argparse
+import hsv
 
 XRES       = 800
 YRES       = 600
@@ -201,11 +202,11 @@ if __name__ == '__main__':
           tokens = None
           with open(drill_file, 'r') as f:
             tokens = parse_cnc(f.read())
-          color.dr = (255-((128 * (tool_ctr/2)) % 256), color.dr[1], (128 * tool_ctr) % 256)
+          color.dr = hsv.hsv2rgb((tool_ctr*30 + 180) % 360, 1, 1)
           screen.blit(fnt.render("Tool #%d" % tool_ctr, True, color.dr, None), (0, 18 * tool_ctr))
           draw_cnc(tokens, screen, args.is_verbose, board_max, line=False)
           tool_ctr += 1
-      except Exception as e:
+      except IOError as e:
         print("Failed to load drill-plot for tool #%d (no more tools?)" % tool_ctr)
     #Wait for user to exit
     while True: 
