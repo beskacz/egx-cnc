@@ -11,18 +11,18 @@ if __name__ == '__main__':
                         help='A Gerber drill layer')
     parser.add_argument("-o", '--out', dest='output_file', \
                       help='Write output to file', metavar="FILE", default='out')
+    parser.add_argument('-w', '--width', dest='width', \
+                      help='Board width', metavar='WIDTH', default=None, type=float, required=True)
+    parser.add_argument('-f', '--input-format', dest='format', \
+                      help="Input file format", metavar='FORMAT', default="GERBER", type=str)
+    parser.add_argument('--info', action="store_true", dest="info", \
+                      default=False, help="Print additional info")
     parser.add_argument('--nowarning', action="store_false", dest="warning", \
                       default=True, help="Don't print warnings")
-    parser.add_argument('--noinfo', action="store_false", dest="info", \
-                      default=True, help="Don't print info")
     parser.add_argument('--nofix', action="store_false", dest="fix", \
                       default=True, help="Don't output 'needs fixing' messages")
     parser.add_argument('--noerror', action="store_false", dest="error", \
                       default=True, help="Don't print errors")
-    parser.add_argument('-f', '--input-format', dest='format', \
-                      help="Input file format", metavar='FORMAT', default="GERBER", type=str)
-    parser.add_argument('-w', '--width', dest='width', \
-                      help='Board width', metavar='WIDTH', default=None, type=float)
     args = parser.parse_args()
 
     cnf = dict()
