@@ -203,7 +203,11 @@ if __name__ == '__main__':
           with open(drill_file, 'r') as f:
             tokens = parse_cnc(f.read())
           color.dr = hsv.hsv2rgb((tool_ctr*30 + 180) % 360, 1, 1)
-          screen.blit(fnt.render("Tool #%d" % tool_ctr, True, color.dr, None), (0, 18 * tool_ctr))
+          if sys.platform == 'win32':
+            #Pygame on windows seems to be unable to render fonts on transparent backgrounds
+            screen.blit(fnt.render("Tool #%d" % tool_ctr, True, color.dr, (0,0,0)), (0, 18 * tool_ctr))
+          else:
+            screen.blit(fnt.render("Tool #%d" % tool_ctr, True, color.dr, None), (0, 18 * tool_ctr))
           draw_cnc(tokens, screen, args.is_verbose, board_max, line=False)
           tool_ctr += 1
       except IOError as e:
