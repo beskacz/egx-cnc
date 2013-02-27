@@ -19,11 +19,15 @@ if __name__ == '__main__':
                       default=True, help="Don't output 'needs fixing' messages")
     parser.add_argument('--no-error', action="store_false", dest="errors", \
                       default=True, help="Don't print errors")
+    parser.add_argument('--ack-feed-rate', action='store_true', dest='ack_feed_rate', \
+                      default=False, help="Acknowledge script feed rate instead of leaving it to the machine.")
     args = parser.parse_args()
-    gcode.config.input_filename = args.gcode_file
-    gcode.config.output_filename = args.filename
-    gcode.config.show_warning = args.warning
-    gcode.config.show_error = args.errors
-    gcode.config.show_info = args.info
-    gcode.config.show_fix = args.fix
-    gcode.test_compiler()
+    conf = dict()
+    conf['input_filename'] = args.gcode_file
+    conf['output_filename'] = args.filename
+    conf['show_warning'] = args.warning
+    conf['show_error'] = args.errors
+    conf['show_info'] = args.info
+    conf['show_fix'] = args.fix
+    conf['ack_feed_rate'] = args.ack_feed_rate
+    gcode.compile(conf)

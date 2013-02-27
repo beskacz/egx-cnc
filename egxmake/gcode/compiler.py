@@ -7,20 +7,13 @@ class g:
   in_f = None
   out_f = None
   bctr = 0
-
-class config:
-  show_warning = True
-  show_info = True
-  show_fix = True
-  show_error = True
-  input_filename = 'in.ngc'
-  output_filename = 'out.egx'
+  config = None
 
 #Boilerplate and I/O
 def init():
     g.scr.reverse()
     #EGX file preample, from header.egx
-    preamble = b'\x03;IN;CS6;CA8;IP0,0,30500,20500;LT;PA;\r\n\r\nPU;\r\n\r\n'
+    preamble = b';IN;CS6;CA8;IP0,0,30500,20500;LT;PA;\r\n\r\nPU;\r\n\r\n'
     g.out_f.write(preamble)
     getToken()
 
@@ -32,27 +25,27 @@ def getChar():
     return chr(g.scr.pop())
 
 def expected(msg):
-  if config.show_error:
+  if g.config['show_error']:
     sys.stderr.write("[ERR] @%d Found <%s>. Expected: %s\n" % (g.bctr, g.look, msg))
   cleanup()
   quit(-1)
 
 def abort(msg):
-  if config.show_error:
+  if g.config['show_error']:
     sys.stderr.write("[ERR] Error at %d: %s\n" % (g.bctr, msg))
   cleanup()
   quit(-2)
 
 def warn(msg):
-  if config.show_warning:
+  if g.config['show_warning']:
     sys.stderr.write("[WRN] Warning at %d: %s\n" % (g.bctr, msg))
 
 def fix(code):
-  if config.show_fix:
+  if g.config['show_fix']:
     sys.stderr.write("[FIX] %s\n" % code)
 
 def info(msg):
-  if config.show_info:
+  if g.config['show_info']:
     sys.stderr.write("[NFO] %s\n" % msg)
 
 def match_cmd(cmd, num=None):
@@ -205,7 +198,14 @@ def move_linear():
   #It also may have a Feed parameter
   if match_cmd('F'):
     feed_rate = float(g.look[1:])
-    info("Ignoring feed rate <%s>" % str(feed_rate))
+    feed_rate_mm = int((feed_rate * 25.4) / 60.0)
+    if g.config['ack_feed_rate']:
+      if feed_rate_mm > 30:
+        warn("Feed rate exceeds maximum value of 30 mm/sec.")
+        warn("Feed rate set to 30 mm/sec.")
+      g.out_f.write(bytes('!VZ%d;' % feed_rate_mm, 'ASCII'))
+    else:
+      info("Ignoring feed rate (%s inch/min -- %d mm/sec)" % (str(feed_rate), feed_rate_mm))
     getToken()
 
 def program_end():
@@ -214,6 +214,8 @@ def program_end():
   g.out_f.write(bytes('PU0,0;PU;', 'ASCII'))
   getToken()
   info("Program finished")
+  if g.look != '':
+    warn("Tokens found beyong end-of-program opcode (M2)")
     
 def command():
     '''A command begins with either G or M, some of them require extra parameters'''
@@ -255,17 +257,18 @@ def command():
       expected("Command (G/M/S)")
 
 ####
-## Test main procedure
+## Main procedure
 ####
 
-def test_compiler():
-  g.scr = list(open(config.input_filename, 'rb').read())
-  g.out_f = open(config.output_filename, 'wb')
-  #g.out_f = sys.stdout
+def compile(conf):
+  g.config = conf
+  g.scr = list(open(g.config['input_filename'], 'rb').read())
+  if g.config['output_filename'] != '-':
+    g.out_f = open(g.config['output_filename'], 'wb')
+  else:
+    g.out_f = sys.stdout.buffer
   init()
   while g.look != '':
     command()
   cleanup()
 
-if __name__ == '__main__':
-  test_compiler()
