@@ -205,8 +205,8 @@ def move_linear():
       if feed_rate_mm > 30:
         warn("Feed rate exceeds maximum value of 30 mm/sec.")
         warn("Feed rate set to 30 mm/sec.")
-      fix("!ZM[number]; Opcode documentation is ambiguous, testing needed -- ignoring rate")
-      #g.out_f.write(bytes('!ZM%d;' % feed_rate_mm, 'ASCII'))
+        feed_rate_mm = 30
+      g.out_f.write(bytes('VS%d;' % feed_rate_mm, 'ASCII'))
     else:
       info("Ignoring feed rate (%s inch/min -- %d mm/sec)" % (str(feed_rate), feed_rate_mm))
     getToken()

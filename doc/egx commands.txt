@@ -1,16 +1,17 @@
 CMD example         | Cmd prototype                       | Meaning?
 --------------------+-------------------------------------+-------------------------------------------------
-IN;                 | <unk>                               | <unk>
+IN;                 | IN;                                 | Initilize the machine (first command).
 --------------------+-------------------------------------+-------------------------------------------------
-CS6;                | <unk>                               | <unk>
+CS6;                | CS[0-59 99];                        | Select standard character set.
 --------------------+-------------------------------------+-------------------------------------------------
-CA8;                | <unk>                               | <unk>
+CA8;                | CA[0-59 99];                        | Select alternative character set.
 --------------------+-------------------------------------+-------------------------------------------------
-IP0,0,30500,20500;  | IP(minX),(minY),(maxX),(maxY);      | Probably defines the work as min/max x/y values.
+IP0,0,30500,20500;  | IP(minX),(minY),(maxX),(maxY);      | Input coordinate boundaries.
 --------------------+-------------------------------------+-------------------------------------------------
-LT;                 | <unk>                               | <unk>
+LT;                 | LT[0-6];                            | Line tipe (width), default 1.
+                    | LT;                                 | Set default.
 --------------------+-------------------------------------+-------------------------------------------------
-PA;                 | <unk>                               | <unk>
+PA;                 | PA;                                 | Use absolute coordinates.
 --------------------+-------------------------------------+-------------------------------------------------
 PU;PU0,0;           | PU;                                 | Tool-up command.
                     | PU(x),(y);                          | Move to point (x,y) with the tool raised.
@@ -18,14 +19,14 @@ PU;PU0,0;           | PU;                                 | Tool-up command.
 PD;PD0,0;           | PD;                                 | Tool-down command.
                     | PD(x),(y);                          | Move to point (x,y) with the tool down.
 --------------------+-------------------------------------+-------------------------------------------------
+VS10;               | VS[0-60];                           | Set feed rate, in mm/sec
+--------------------+-------------------------------------+-------------------------------------------------
+
 
 Notes:
-All files analyzed start with byte 0x03 (ASCII End-of-text?) followed by a semicolon [0x03, 0x3B]
-
-All files have a header like this (remember the leading 0x03):
+All analyzed files have a header like this:
     ";IN;CS6;CA8;IP0,0,30500,20500;LT;PA;\r\n\r\nPU;\r\n\r\n"
 And end with "PU;\r\n\r\n" which raises the tool and stops spinning,
 
 Commands missing in action, try to extract examples from drengrave:
-VS
-!VZ
+!VZ (z-axis velocity select)
