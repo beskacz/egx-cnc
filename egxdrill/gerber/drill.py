@@ -1,4 +1,6 @@
 import re
+import json
+import os.path
 
 preamble = bytes((\
 	0x03, 0x3B, 0x49, 0x4E, 0x3B, 0x43, 0x53, 0x36, 0x3B, 0x43, 0x41, 0x38, \
@@ -82,6 +84,14 @@ Tool #     Width
     line = config.input_file.readline()
   for e in files.keys():
     files[e].close()
+  #Generate the .meta file
+  meta = dict()
+  for i in tools.keys():
+    name = os.path.split("%s-%s.egx" % (config.output_prefix, i))[1]
+    attr = tools[i]
+    meta[name] = {'name': "Drill-plot (%s)" % attr, 'tool': attr.split(' ')[0], 'type': 'DRILL', 'unit': attr.split(' ')[1]}
+  with open("%s.meta" % config.output_prefix, 'wb') as f:
+    f.write(bytes(json.dumps(meta, sort_keys=True, indent=4), 'utf-8'))
 
 def make(cnf):
   with open(cnf['input_file'], 'r', encoding='ASCII') as in_f:

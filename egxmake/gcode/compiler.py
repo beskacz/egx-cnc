@@ -1,4 +1,6 @@
 import sys
+import json
+import os.path
 
 #Globals
 class g:
@@ -271,5 +273,11 @@ def compile(conf):
   init()
   while g.look != '':
     command()
+  #write meta, if required
+  if g.config['meta_file'] != None:
+    with open(g.config['meta_file'], 'wb') as f:
+      meta = dict()
+      meta[ os.path.split(g.config['output_filename'])[1] ] = {'name': g.config['layer_name'], 'type': g.config['layer_type'], 'tool': None, 'unit': None}
+      f.write(bytes(json.dumps(meta, indent=4), 'utf-8'))
   cleanup()
 
