@@ -1,66 +1,36 @@
-#!/usr/bin/env python3
-import io
+#! /usr/bin/env python3
+
+import argparse
 import sys
-import subprocess as sp
-
-class g:
-  config = {'info':True, 'warning':True, 'error':True}
-
-def info(msg):
-  if g.config['info']:
-    print("[NFO] %s" % msg)
-
-def warn(msg):
-  if g.config['warning']:
-    print("[WAR] %s" % msg)
-
-def error(msg):
-  if g.config['error']:
-    print("[ERR] %s" % msg)
-
-def nix_list_printers():
-  #> lpstat -a -l
-  p1  = sp.Popen(['lpstat', '-a', '-l'], stdout=sp.PIPE)
-  output = str(p1.communicate()[0], sys.getdefaultencoding())
-  iostr  = io.StringIO(output)
-
-  ret_lst = list()
-  for l in iostr.readlines():
-    if len(l) == 0:
-      continue
-    space_idx = l.find(' ')
-    ret_lst.append( [l[:6],l[6:-1]] )
-  return ret_lst
-
-def nix_select_printer():
-  print_lst = nix_list_printers()
-  if len(print_lst) == 0:
-    error("No printers found")
-    return None
-  idx = 0
-  for p in print_lst:
-    print("[%d]" % idx, p[0], p[1])
-  option = None
-  while(option == None):
-    sys.stdout.write("Select printer: ")
-    sys.stdout.flush()
-    try:
-      option = print_lst[int(sys.stdin.readline()[:-1])][0]
-    except IndexError as e:
-      print("Index out of range.")
-    except Exception as e:
-      print("Option not valid <%s>." % str(e))
-  return option
-  
-def nix_mill(printer_name, data):
-  #Popen 'lp -d <printer-name>'
-  #Push all data trough STDIN
-  pass
+from milling_nix import *
 
 if __name__ == '__main__':
-  print("Testing messages")
-  info("Hoot!")
-  warn("Hey! Listen!")
-  error("Kiaaa!")
-  print(nix_select_printer())
-  pass
+    #Parse options
+    parser = argparse.ArgumentParser(sys.argv[0], description="Send a milling job to a printer-like device.")
+    parser.add_argument('input_file', metavar='EGX-FILE', type=str, \
+                        help='A Gerber drill layer', default=None, nargs='?')
+    parser.add_argument('-d', '--printer', dest='printer', default=None, help='Which printer-like device to send the job')
+    parser.add_argument('-i', '--interactive', dest='interactive', action='store_true', default=False, help='Use the interactive ui')
+
+    parser.add_argument('--nowarning', action="store_false", dest="warning", \
+                      default=True, help="Don't print warnings")
+    parser.add_argument('--nofix', action="store_false", dest="fix", \
+                      default=True, help="Don't output 'needs fixing' messages")
+    parser.add_argument('--noerror', action="store_false", dest="error", \
+                      default=True, help="Don't print errors")
+    args = parser.parse_args()
+
+    cnf = dict()
+    cnf['input_file']  = args.input_file
+    cnf['printer']     = args.printer
+    cnf['interactive'] = args.interactive
+    cnf['warning']     = args.warning
+    cnf['fix']         = args.fix
+    cnf['error']       = args.error
+    
+    if cnf['interactive']:
+      interactive()
+    else:
+      if cnf['printer'] == None:
+        cnf['printer'] = default_printer()
+      mill(cnf['printer'], cnf['input_file'])
