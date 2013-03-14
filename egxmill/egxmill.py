@@ -27,8 +27,12 @@ if __name__ == '__main__':
     cnf['warning']     = args.warning
     cnf['fix']         = args.fix
     cnf['error']       = args.error
-    
-    if cnf['interactive']:
+
+    if len(sys.argv) == 1:
+      print("No parameters used, starting interactive mode.")
+      print("Use -h for help.")
+
+    if cnf['interactive'] or (len(sys.argv) == 1):
       interactive()
     else:
       if cnf['printer'] == None:
