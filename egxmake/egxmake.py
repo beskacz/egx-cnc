@@ -12,6 +12,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--generate-meta', dest='meta_file', help='Write .meta file', metavar='FILE', default=None)
     parser.add_argument('-t', '--layer-type', dest='layer_type', help='Layer type [DRILL TRACK MECH SILK], TRACK by default', metavar='TYPE', default='TRACK')
     parser.add_argument('-n', '--layer-name', dest='layer_name', help='Layer name, filename by default', metavar='NAME', default=None)
+    parser.add_argument('-p', '--precision', dest='precision', help='Tool minimim precision', metavar='mm', default=None)
 
     parser.add_argument('--no-warnings', action="store_false", dest="warning", default=True, help="Don't print warnings")
     parser.add_argument('--no-info', action="store_false", dest="info", default=True, help="Don't print info")
@@ -21,6 +22,7 @@ if __name__ == '__main__':
                         default=False, help="Acknowledge script feed rate instead of leaving it to the machine.")
     args = parser.parse_args()
     conf = dict()
+    conf['precision'] = args.precision
     conf['input_filename'] = args.gcode_file
     conf['output_filename'] = args.filename
     conf['meta_file'] = args.meta_file

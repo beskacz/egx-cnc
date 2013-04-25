@@ -9,6 +9,9 @@ class g:
   in_f = None
   out_f = None
   bctr = 0
+  lastx = 0.0
+  lasty = 0.0
+
   config = None
 
 #Boilerplate and I/O
