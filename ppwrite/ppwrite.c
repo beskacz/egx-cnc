@@ -24,14 +24,11 @@ int init(char* pp_name){
   unsigned int pp_count = 0;
   pp_array = pp_lst.portv;
   while ((*pp_array) != 0){
-    printf("Parallel port '%s':\n", (**pp_array).name);
-    printf("  Base addr: 0x%lX\n", (**pp_array).base_addr);
-    printf("   ECR addr: 0x%lX\n", (**pp_array).hibase_addr);
-    printf("   filename: '%s'\n", (**pp_array).filename);
-    //If pp_name is null, we use the first port found
+    //Select first port if not given a name
     if (pp_name == 0){
       pp = *(pp_lst.portv[0]);
       pp_count = 1;
+      printf("Selected port: %s\n", (**pp_array).name);
       break;
     }
     //If not, we compare the names
@@ -46,7 +43,6 @@ int init(char* pp_name){
   if(pp_count == 0){
     return PP_NOTFOUND;
   }
-
   //Try to get the device ID
   char device_id[1025];
   uint16_t device_id_len;
@@ -142,6 +138,10 @@ int init(char* pp_name){
   return PP_OK;
 }
 
+
+/**
+ * Releases the parallel port
+ */
 void cleanup(){
   //Release port
   ieee1284_release(&pp);
@@ -150,6 +150,12 @@ void cleanup(){
   ieee1284_free_ports(&pp_lst);
 }
 
+/**
+ * Writes the speciefied file into the port
+ * @param file_name path to fthe file to write or "" for stdin
+ * @param mode x/e/c for ECP/EPP/Compatibility parallel port mode
+ * @return PP_OK on success
+ */
 int mill(char* file_name, char mode){
   char buff[PP_FREAD_BUFFER];
   int  buff_size = 0;
@@ -201,17 +207,40 @@ int mill(char* file_name, char mode){
     buff_size = fread(buff, 1, PP_FREAD_BUFFER, in_file);
     written = 0;
   }
-  //Transfer some data
-//  char pp_buf[] = ";PU;";
-//  pp_buf[0] = 0x03;
-//  ssize_t buf_len = strlen(pp_buf);
-//  ssize_t block = 16;
-//  while(written != buf_len){
-//    written += ieee1284_ecp_write_data (&pp, 0, pp_buf + written, (buf_len - written) < block ? (buf_len - written) : block);
-//  }
-
+  return PP_OK;
 }
 
+/*
+ * List available ports
+ * @return PP_OK on success
+ */
+int list_ports(){
+  if(ieee1284_find_ports(&pp_lst, 0) != E1284_OK){
+    printf("Error while listing parallel ports\n");
+    return PP_ERROR;
+  }
+  struct parport** pp_array;
+  unsigned int pp_count = 0;
+  pp_array = pp_lst.portv;
+  while ((*pp_array) != 0){
+    printf("Port: %s\n", (**pp_array).name);
+    printf("  Base addr: 0x%lX\n", (**pp_array).base_addr);
+    printf("   ECR addr: 0x%lX\n", (**pp_array).hibase_addr);
+    printf("   filename: '%s'\n", (**pp_array).filename);
+    pp_array++;
+    pp_count++;
+  }
+  printf("%d ports detected.\n", pp_count);
+
+  return PP_OK;
+}
+
+/**
+ * Parse CLI parameters and start a data transfer
+ * @param argc param count
+ * @param argv param values
+ * @return PP_OK on success
+ */
 int main(int argc, char** argv){
   char port_name [100] = "";
   char* port_name_p = port_name;
@@ -219,13 +248,6 @@ int main(int argc, char** argv){
   char mode = 'x';
   //
   // Parse the command line.
-  //
-  // ppwrite [-c | -e | -x] [-p<PORT_NAME>] file
-  //
-  // -p<PORT NAME>  Select port name
-  // -c             Compatibility mode (SPP)
-  // -e             Enhanced Parallel Port mode (EPP)
-  // -x             Extended capability Port (ECP)
   //
   for(int i=1;i<argc;i++){
     if(argv[i][0] == '-'){
@@ -238,6 +260,8 @@ int main(int argc, char** argv){
         mode = 'e';
       if (argv[i][1] == 'x')
         mode = 'x';
+      if (argv[i][1] == 'l')
+        return list_ports();
       if (argv[i][1] == 'h'){
         printf("ppwrite [-c | -e | -x] [-p<PORT_NAME>] file\n");
         printf("\n");
@@ -245,8 +269,9 @@ int main(int argc, char** argv){
         printf("-c             Compatibility mode (SPP)\n");
         printf("-e             Enhanced Parallel Port mode (EPP)\n");
         printf("-x             Extended capability Port (ECP)\n");
+        printf("-l             List paralell ports\n");
         printf("-h             This text\n");
-        return 0;
+        return PP_OK;
       }
     }
     else{
@@ -268,7 +293,7 @@ int main(int argc, char** argv){
       printf("Transfer error\n");
     }
     cleanup();
-    return 0;
+    return PP_OK;
   }
   else{
     printf("Could not write '%s' into port '%s'\n", file_name, port_name);
