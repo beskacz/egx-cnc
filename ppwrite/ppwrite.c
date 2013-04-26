@@ -1,3 +1,30 @@
+/**
+ * @file ppwrite.c
+ * @brief ppwrite, a program to directly write data to the parallel port.
+ *
+ * @section DESCRIPTION
+ * I needed a way to write raw data to the parallel port and CUPS was
+ * not cutting it (dead slow writes) so within two hours I read the 
+ * libieee1284 manpage and put together this little program.
+ * There will be programming errors sice this is a quick hack.
+ *
+ * Have fun :P
+ * J.Luis.
+ *
+ * @section LICENSE
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "ppwrite.h"
 #include <string.h>
 
@@ -158,8 +185,10 @@ void cleanup(){
  */
 int mill(char* file_name, char mode){
   char buff[PP_FREAD_BUFFER];
+  int  file_size = 0;
   int  buff_size = 0;
   int  written = 0;
+  int  written_total = 0;
   //Check for mode availability
   if((mode == 'x') && (!pp_has_ecp)){
     printf("System does not support ECP mode.\n");
@@ -181,6 +210,10 @@ int mill(char* file_name, char mode){
     in_file = fopen(file_name, "rb");
     if(in_file == 0)
       return PP_ERROR;
+	//Try getting the file size
+    fseek ( in_file , 0 , SEEK_END );
+	file_size = ftell(in_file);
+	fseek ( in_file , 0 , SEEK_SET );
   }
   buff_size = fread(buff, 1, PP_FREAD_BUFFER, in_file);
   while(buff_size != 0){
@@ -188,23 +221,25 @@ int mill(char* file_name, char mode){
     case 'c':
       while(written != buff_size){
         written += ieee1284_compat_write (&pp, 0, buff + written, (buff_size - written) < PP_BLOCK_SIZE ? (buff_size - written) : PP_BLOCK_SIZE);
-        //if (((written % 100) == 0) || (written == buf_len)) printf("[%d/%d] -- %d%%\n", written, buf_len, (written * 100) / buf_len);
       }
       return PP_ERROR;
     case 'x':
       while(written != buff_size){
         written += ieee1284_ecp_write_data (&pp, 0, buff + written, (buff_size - written) < PP_BLOCK_SIZE ? (buff_size - written) : PP_BLOCK_SIZE);
-        //if (((written % 100) == 0) || (written == buf_len)) printf("[%d/%d] -- %d%%\n", written, buf_len, (written * 100) / buf_len);
       }
       break;
     case 'e':
       while(written != buff_size){
         written += ieee1284_epp_write_data (&pp, 0, buff + written, (buff_size - written) < PP_BLOCK_SIZE ? (buff_size - written) : PP_BLOCK_SIZE);
-        //if (((written % 100) == 0) || (written == buf_len)) printf("[%d/%d] -- %d%%\n", written, buf_len, (written * 100) / buf_len);
       }
       return PP_ERROR;
     }
     buff_size = fread(buff, 1, PP_FREAD_BUFFER, in_file);
+	written_total += written;
+	if(file_size > 0){
+	  ///@fixme if verbose show progress
+	  if (((written % 100) == 0) || (written == buff_size)) printf("[%d/%d] -- %d%%\n", written, file_size, (written * 100) / file_size);
+	}
     written = 0;
   }
   return PP_OK;
@@ -242,9 +277,9 @@ int list_ports(){
  * @return PP_OK on success
  */
 int main(int argc, char** argv){
-  char port_name [100] = "";
-  char* port_name_p = port_name;
-  char file_name [1024] = "";
+  char empty_name[] = "";
+  char* port_name   = 0;
+  char* file_name   = 0;
   char mode = 'x';
   //
   // Parse the command line.
@@ -252,6 +287,7 @@ int main(int argc, char** argv){
   for(int i=1;i<argc;i++){
     if(argv[i][0] == '-'){
       if (argv[i][1] == 'p'){
+	    port_name = malloc(strlen(argv[i] + 2) + 1);
         strcpy(port_name, argv[i] + 2);
       }
       if (argv[i][1] == 'c')
@@ -275,13 +311,18 @@ int main(int argc, char** argv){
       }
     }
     else{
+	  if (file_name != 0)
+	    free(file_name);
+	  file_name = malloc(strlen(file_name) + 1);
       strcpy(file_name, argv[i]);
     }
   }
   //Try to init the selected port
-  if (port_name[0] == '\0')
-    port_name_p = 0;
-  if (init(port_name_p) == 0){
+  if (port_name[0] == '\0'){
+    free(port_name);
+	port_name = 0;
+  }
+  if (init(port_name) == 0){
     printf("-------------------------\n");
     printf(" Initialization success!\n");
     printf(" Starting transfer\n");
