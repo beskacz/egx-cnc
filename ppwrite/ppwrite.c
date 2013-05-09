@@ -4,7 +4,7 @@
  *
  * @section DESCRIPTION
  * I needed a way to write raw data to the parallel port and CUPS was
- * not cutting it (dead slow writes) so within two hours I read the 
+ * not cutting it (dead slow writes) so within two hours I read the
  * libieee1284 manpage and put together this little program.
  * There will be programming errors sice this is a quick hack.
  *
@@ -36,6 +36,7 @@
  */
 int init(char* pp_name){
   int result;
+  printf("Starting init...\n");
   if(pp_name)
     printf("Initializing parallel port '%s'.\n", pp_name);
   else
@@ -108,44 +109,44 @@ int init(char* pp_name){
   pp_has_ecp = 0;
   pp_has_epp = 0;
   pp_has_compat = 0;
-  //Enumerate capabilities
-  printf("Port capabilities:\n");
-  if (pp_capable & CAP1284_RAW)
-    printf("  Pin-level access available\n");
-  if (pp_capable & CAP1284_NIBBLE)
-    printf("  Nibble mode available\n");
-  if (pp_capable & CAP1284_BYTE)
-    printf("  Byte mode available\n");
+  ///Enumerate capabilities @fixme move to the list procedure
+  //printf("Port capabilities:\n");
+  //if (pp_capable & CAP1284_RAW)
+  //  printf("  Pin-level access available\n");
+  //if (pp_capable & CAP1284_NIBBLE)
+  //  printf("  Nibble mode available\n");
+  //if (pp_capable & CAP1284_BYTE)
+  //  printf("  Byte mode available\n");
   if (pp_capable & CAP1284_COMPAT){
-    printf("  Compatibility mode available\n");
+    //printf("  Compatibility mode available\n");
     pp_has_compat = 1;
   }
-  if (pp_capable & CAP1284_BECP)
-    printf("  Bounded ECP available\n");
+  //if (pp_capable & CAP1284_BECP)
+  //  printf("  Bounded ECP available\n");
   if (pp_capable & CAP1284_ECP){
-    printf("  ECP (hardware) available\n");
+    //printf("  ECP (hardware) available\n");
     pp_has_ecp = 1;
   }
-  if (pp_capable & CAP1284_ECPRLE)
-  printf("  ECP mode supports RLE compression\n");
+  //if (pp_capable & CAP1284_ECPRLE)
+  //  printf("  ECP mode supports RLE compression\n");
   if (pp_capable & CAP1284_ECPSWE){
-    printf("  ECP (software) available\n");
+    //printf("  ECP (software) available\n");
     pp_has_ecp = 1;
   }
   if (pp_capable & CAP1284_EPP){
     printf("  EPP (hardware) available\n");
     pp_has_epp = 1;
   }
-  if (pp_capable & CAP1284_EPPSL)
-    printf("  EPPSL ??\n");
+  //if (pp_capable & CAP1284_EPPSL)
+  //  printf("  EPPSL ??\n");
   if (pp_capable & CAP1284_EPPSWE){
-    printf("  EPP (software) available\n");
+    //printf("  EPP (software) available\n");
     pp_has_epp = 1;
   }
-  if (pp_capable & CAP1284_IRQ)
-    printf("  IRQ line configured\n");
-  if (pp_capable & CAP1284_DMA)
-    printf("  DMA channel configured\n");
+  //if (pp_capable & CAP1284_IRQ)
+  //  printf("  IRQ line configured\n");
+  //if (pp_capable & CAP1284_DMA)
+  //  printf("  DMA channel configured\n");
 
   //Claim access to the port
   for(int i = 0; i<100; i++){
@@ -204,16 +205,21 @@ int mill(char* file_name, char mode){
   }
   //Open the file
   FILE* in_file;
-  if (strlen(file_name) == 0)
-    in_file = stdin;
+  if(file_name){
+    if (strlen(file_name) == 0)
+      in_file = stdin;
+    else{
+      in_file = fopen(file_name, "rb");
+      if(in_file == 0)
+        return PP_ERROR;
+      //Try getting the file size
+      fseek ( in_file , 0 , SEEK_END );
+      file_size = ftell(in_file);
+      fseek ( in_file , 0 , SEEK_SET );
+    }
+  }
   else{
-    in_file = fopen(file_name, "rb");
-    if(in_file == 0)
-      return PP_ERROR;
-	//Try getting the file size
-    fseek ( in_file , 0 , SEEK_END );
-	file_size = ftell(in_file);
-	fseek ( in_file , 0 , SEEK_SET );
+    in_file = stdin; ///< @FIXME Make buffered read/writes indeoendent from file size
   }
   buff_size = fread(buff, 1, PP_FREAD_BUFFER, in_file);
   while(buff_size != 0){
@@ -222,7 +228,7 @@ int mill(char* file_name, char mode){
       while(written != buff_size){
         written += ieee1284_compat_write (&pp, 0, buff + written, (buff_size - written) < PP_BLOCK_SIZE ? (buff_size - written) : PP_BLOCK_SIZE);
       }
-      return PP_ERROR;
+      break;
     case 'x':
       while(written != buff_size){
         written += ieee1284_ecp_write_data (&pp, 0, buff + written, (buff_size - written) < PP_BLOCK_SIZE ? (buff_size - written) : PP_BLOCK_SIZE);
@@ -232,14 +238,10 @@ int mill(char* file_name, char mode){
       while(written != buff_size){
         written += ieee1284_epp_write_data (&pp, 0, buff + written, (buff_size - written) < PP_BLOCK_SIZE ? (buff_size - written) : PP_BLOCK_SIZE);
       }
-      return PP_ERROR;
+      break;
     }
     buff_size = fread(buff, 1, PP_FREAD_BUFFER, in_file);
-	written_total += written;
-	if(file_size > 0){
-	  ///@fixme if verbose show progress
-	  if (((written % 100) == 0) || (written == buff_size)) printf("[%d/%d] -- %d%%\n", written, file_size, (written * 100) / file_size);
-	}
+    written_total += written;
     written = 0;
   }
   return PP_OK;
@@ -304,23 +306,26 @@ int main(int argc, char** argv){
         printf("-p<PORT NAME>  Select port name\n");
         printf("-c             Compatibility mode (SPP)\n");
         printf("-e             Enhanced Parallel Port mode (EPP)\n");
-        printf("-x             Extended capability Port (ECP)\n");
+        printf("-x             Extended Capability Port (ECP) (default)\n");
         printf("-l             List paralell ports\n");
         printf("-h             This text\n");
         return PP_OK;
       }
     }
     else{
-	  if (file_name != 0)
-	    free(file_name);
-	  file_name = malloc(strlen(file_name) + 1);
+      if (file_name != 0){
+        free(file_name);
+      }
+      file_name = malloc(strlen(argv[i]) + 1);
       strcpy(file_name, argv[i]);
     }
   }
   //Try to init the selected port
-  if (port_name[0] == '\0'){
-    free(port_name);
-	port_name = 0;
+  if (port_name != 0){
+    if(port_name[0] == '\0'){
+      free(port_name);
+      port_name = 0;
+    }
   }
   if (init(port_name) == 0){
     printf("-------------------------\n");
